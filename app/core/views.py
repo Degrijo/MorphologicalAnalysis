@@ -74,7 +74,10 @@ POS = {
     "VERB": "verb",
     "X": "other"
 }
-TOKENS = []
+
+rules = {
+
+}
 
 
 class LexicalAnalysisView(FormView):
@@ -95,7 +98,11 @@ class LexicalAnalysisView(FormView):
 
 def process_text(data):
     nlp = spacy.load("en_core_web_sm")
-    for token in nlp(data):
-        print(token.doc)
-    return sorted([{'name': f'"{token.text}"', 'dep': DEPS.get(token.dep_.upper(), token.dep_), 'pos': POS.get(token.pos_, token.pos_), 'lemma': token.tag_}
-                   for token in nlp(data)], key=lambda x: x['name'].lower())
+    lemmes = sorted({token.lemma_ for token in nlp(data) if token.is_alpha}, key=lambda x: x.lower())
+    return lemmes
+
+# subject - подлежащее
+# predicate - сказуемое
+# object - дополнение
+# attribute - определение
+# adverbial modifier - обстоятельство
