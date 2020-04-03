@@ -18,11 +18,10 @@ body {
     position: fixed;
     width: 500px;
     height: 200px;
-    top: 40%;
+    top: 30%;
     left: 50%;
     margin-top: -60px;
     margin-left: -250px;
-    justify-content:
 }
 
 .submit-button {
@@ -44,4 +43,13 @@ body {
 .center-display {
     justify-content: center;
     display: flex;
+}
+
+.result {
+    width: 421px;
+    height: 246px;
+    background-color: white;
+    color: black;
+    overflow-y: scroll;
+    padding: 2px;
 }

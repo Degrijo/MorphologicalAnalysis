@@ -1,59 +1,9 @@
 from django.views.generic.edit import FormView
-from app.core.forms import InputForm
-
+from re import split
 import spacy.tokens.token
 
+from app.core.forms import InputForm
 
-DEPS = {
-    "ACOMP": "Adjectival complement",
-    "ADVCL": "Adverbial clause modifier",
-    "ADVMOD": "Adverbial modifier",
-    "AGENT": "Agent NN Noun compound modifier",
-    "AMOD": "Adjectival modifier",
-    "APPOS": "Appositional modifier",
-    "ATTR": "Attribute",
-    "AUX": "Auxiliary NUM Numeric modifier",
-    "AUXPASS": "Auxiliary (passive)",
-    "CC": "Coordinating conjunction",
-    "CCOMP": "Clausal complement",
-    "COMPLM": "Complementizer",
-    "CONJ": "Conjunct",
-    "CSUBJ": "Clausal subject",
-    "CSUBJPASS": "Clausal subject (passive)",
-    "DEP": "Unclassified dependent",
-    "DET": "Determiner",
-    "DOBJ": "Direct object",
-    "EXPL": "Expletive",
-    "HMOD": "Modifier in hyphenation",
-    "HYPH": "Hyphen",
-    "INFMOD": "Infinitival modifier",
-    "INTJ": "Interjection",
-    "IOBJ": "Indirect object",
-    "MARK": "Marker",
-    "META": "Meta modifier",
-    "NEG": "Negation modifier",
-    "NMOD": "Modifier of nominal",
-    "NPADVMOD": "Noun phrase as ADVMOD",
-    "NSUBJ": "Nominal subject",
-    "NSUBJPASS": "Nominal subject (passive)",
-    "NUMBER": "Number compound modifier",
-    "OPRD": "Object predicate",
-    "PARATAXIS": "Parataxis",
-    "PARTMOD": "Participial modifier",
-    "PCOMP": "Complement of a preposition",
-    "POBJ": "Object of a preposition",
-    "POSS": "Possession modifier",
-    "POSSESSIVE": "Possessive modifier",
-    "PRECONJ": "Pre-correlative conjunction",
-    "PREDET": "Predeterminer",
-    "PREP": "Prepositional modifier",
-    "PRT": "Particle",
-    "PUNCT": "Punctuation",
-    "QUANTMOD": "Quantifier phrase modifier",
-    "RCMOD": "Relative clause modifier",
-    "ROOT": "Root",
-    "XCOMP": "Open clausal complement",
-}
 
 POS = {
     "ADJ": "adjective",
@@ -75,10 +25,6 @@ POS = {
     "X": "other"
 }
 
-rules = {
-
-}
-
 
 class LexicalAnalysisView(FormView):
     form_class = InputForm
@@ -98,8 +44,31 @@ class LexicalAnalysisView(FormView):
 
 def process_text(data):
     nlp = spacy.load("en_core_web_sm")
-    lemmes = sorted({token.lemma_ for token in nlp(data) if token.is_alpha}, key=lambda x: x.lower())
-    return lemmes
+    lemmes = {}
+    for sentence in split('[?!.]', data):
+        if not sentence:
+            continue
+        subject = predicate = union = False
+        for token in nlp(sentence):
+            if token.is_alpha and token.pos_ in ['PROPN', 'PRON', 'VERB', 'NOUN']:
+                member = None
+                if token.pos_ in ['PROPN', 'PRON', 'NOUN']:
+                    if subject:
+                        member = 'object'
+                    else:
+                        member = 'subject'
+                        subject = True
+                if token.pos_ == 'VERB':
+                    member = 'predicate'
+                    predicate = True
+                if token.lemma_ in lemmes:
+                    if member and member not in lemmes[token.lemma_]['proposal_members']:
+                        lemmes[token.lemma_]['proposal_members'] += ', ' + member
+                else:
+                    lemmes[token.lemma_] = {"part_of_speech": POS.get(token.pos_, token.pos_),
+                                            "tag": spacy.explain(token.tag_),
+                                            "proposal_members": member or '-'}
+    return sorted(lemmes.items(), key=lambda x: x[0].lower())
 
 # subject - подлежащее
 # predicate - сказуемое
