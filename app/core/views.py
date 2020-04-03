@@ -48,19 +48,26 @@ def process_text(data):
     for sentence in split('[?!.]', data):
         if not sentence:
             continue
-        subject = predicate = union = False
+        subject = determiner = False
         for token in nlp(sentence):
-            if token.is_alpha and token.pos_ in ['PROPN', 'PRON', 'VERB', 'NOUN']:
+            print(token.pos_)
+            if token.is_alpha and token.pos_ in ['PROPN', 'PRON', 'VERB', 'NOUN', 'ADJ', 'ADV', 'AUX']:
                 member = None
                 if token.pos_ in ['PROPN', 'PRON', 'NOUN']:
-                    if subject:
-                        member = 'object'
-                    else:
+                    if not subject:
                         member = 'subject'
                         subject = True
-                if token.pos_ == 'VERB':
+                    elif determiner:
+                        member = 'subject'
+                    else:
+                        member = 'object'
+                elif token.pos_ in ['VERB', 'AUX']:
                     member = 'predicate'
-                    predicate = True
+                elif token.pos_ in ["ADJ"]:
+                    member = 'attribute'
+                elif token.pos_ in ["ADV"]:
+                    member = 'adverbial modifier'
+                determiner = False
                 if token.lemma_ in lemmes:
                     if member and member not in lemmes[token.lemma_]['proposal_members']:
                         lemmes[token.lemma_]['proposal_members'] += ', ' + member
@@ -68,10 +75,6 @@ def process_text(data):
                     lemmes[token.lemma_] = {"part_of_speech": POS.get(token.pos_, token.pos_),
                                             "tag": spacy.explain(token.tag_),
                                             "proposal_members": member or '-'}
+            if token.text in ['or', 'and']:
+                determiner = True
     return sorted(lemmes.items(), key=lambda x: x[0].lower())
-
-# subject - подлежащее
-# predicate - сказуемое
-# object - дополнение
-# attribute - определение
-# adverbial modifier - обстоятельство
