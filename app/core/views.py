@@ -48,26 +48,23 @@ def process_text(data):
     for sentence in split('[?!.]', data):
         if not sentence:
             continue
-        subject = determiner = False
+        subject = pretext = False
         for token in nlp(sentence):
-            print(token.pos_)
             if token.is_alpha and token.pos_ in ['PROPN', 'PRON', 'VERB', 'NOUN', 'ADJ', 'ADV', 'AUX']:
                 member = None
                 if token.pos_ in ['PROPN', 'PRON', 'NOUN']:
-                    if not subject:
+                    if pretext or subject:
+                        member = 'object'
+                    else:
                         member = 'subject'
                         subject = True
-                    elif determiner:
-                        member = 'subject'
-                    else:
-                        member = 'object'
                 elif token.pos_ in ['VERB', 'AUX']:
                     member = 'predicate'
                 elif token.pos_ in ["ADJ"]:
                     member = 'attribute'
                 elif token.pos_ in ["ADV"]:
                     member = 'adverbial modifier'
-                determiner = False
+                pretext = False
                 if token.lemma_ in lemmes:
                     if member and member not in lemmes[token.lemma_]['proposal_members']:
                         lemmes[token.lemma_]['proposal_members'] += ', ' + member
@@ -75,6 +72,8 @@ def process_text(data):
                     lemmes[token.lemma_] = {"part_of_speech": POS.get(token.pos_, token.pos_),
                                             "tag": spacy.explain(token.tag_),
                                             "proposal_members": member or '-'}
-            if token.text in ['or', 'and']:
-                determiner = True
+            if token.pos_ == 'ADP':
+                pretext = True
     return sorted(lemmes.items(), key=lambda x: x[0].lower())
+
+# Subject, Predicate, Object, Attribute, Adverbial modifier
