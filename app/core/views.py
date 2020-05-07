@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateView
 
 from app.core.forms import InputForm
 from app.core.utils.lab1 import process_text
+from app.core.utils.lab3 import get_tree
 
 
 class MainMenu(TemplateView):
@@ -11,15 +12,22 @@ class MainMenu(TemplateView):
 
 class LexicalAnalysisView(FormView):
     form_class = InputForm
-    template_name = 'input.html'
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+    template_name = 'lab1.html'
 
     def form_valid(self, form):
         new_text = process_text(form.cleaned_data['text'])
         return self.render_to_response(self.get_context_data(form=form, new_text=new_text))
+
+
+class SyntacticTreeView(FormView):
+    form_class = InputForm
+    template_name = 'lab3.html'
+
+    def form_valid(self, form):
+        new_text = get_tree(form.cleaned_data['text'])
+        return self.render_to_response(self.get_context_data(form=form, new_text=str(new_text)))
+
+
+class SemanticTreeView(FormView):
+    form_class = InputForm
+    template_name = 'lab4.html'

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row form-container">
+            <div id="label-container" class="col-sm-2">
+                {{ form.text.label }}:
+            </div>
+            <div class="col-sm-10">
+                {{ form.text }}
+            </div>
+        </div>
+            {% if new_text %}
+                <div class="row form-container">
+                    <div id="label-container" class="col-sm-2">Result:</div>
+                    <div class="col-sm-10">
+                        <div class="result">
+                            {% for word in new_text %}
+                                {{ forloop.counter }}.{{ word.0 }}:
+                                <ul>
+                                    <li> {{ word.1.tag }} </li>
+                                    <li> {{ word.1.proposal_members }} </li>
+                                </ul>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-10 center-display">
+                    <button class="submit-button" type="submit" value="Send message">Parse it!</button>
+                </div>
+            </div>
+    </form>
+{% endblock %}

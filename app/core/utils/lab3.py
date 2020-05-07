@@ -18,22 +18,19 @@ rp = nltk.RegexpParser(grammar)
 analyzer = MorphAnalyzer()
 
 
-def tokenize(sentences):
-    return [word for sent in nltk.sent_tokenize(sentences.lower()) for word in nltk.word_tokenize(sent)]
-
-
-def get_word_tag(text):
+def convert_to_tags(text):
     list_word_with_tag = []
-    for word in tokenize(text):
-        parse_word = analyzer.parse(word)[0]
-        list_word_with_tag.append((word, parse_word.tag.POS))
+    for sentence in nltk.sent_tokenize(text.lower()):
+        for word in nltk.word_tokenize(sentence):
+            parse_word = analyzer.parse(word)[0]
+            if parse_word.tag.POS:
+                list_word_with_tag.append((word, parse_word.tag.POS))
     return list_word_with_tag
 
 
 def get_tree(text):
     text = text.replace('\n', '')
     if text != '':
-        doc = get_word_tag(text)
-        new_doc = [item for item in doc if item[0] not in ['.', ',']]
+        new_doc = convert_to_tags(text)
         result = rp.parse(new_doc)
         return result  # pformat
