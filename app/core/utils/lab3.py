@@ -1,3 +1,7 @@
+import nltk
+from pymorphy2 import MorphAnalyzer
+
+
 grammar = r"""
         P: {<PRCL|PREP>}
         V: {<VERB|INFN>}
@@ -10,49 +14,26 @@ grammar = r"""
         VP: {<NP|N|GRND|PRTS|ADVB><VP>}
         VP: {<VP><PP>}
         """
+rp = nltk.RegexpParser(grammar)
+analyzer = MorphAnalyzer()
 
 
 def tokenize(sentences):
-    """
-    Tokenization of the text.
-    :param sentences: entered sentences
-    :return: list with words
-    """
-    list_word = []
-    for sent in nltk.sent_tokenize(sentences.lower()):
-        for word in nltk.word_tokenize(sent):
-            list_word.append(word)
-    return list_word
+    return [word for sent in nltk.sent_tokenize(sentences.lower()) for word in nltk.word_tokenize(sent)]
 
 
 def get_word_tag(text):
-    """
-    Get word tag using pymorphy2.
-    :param text: entered text
-    :return: list with words and tags
-    """
     list_word_with_tag = []
-    list_word = tokenize(text)
-    analyzer = MorphAnalyzer()
-    for word in list_word:
+    for word in tokenize(text):
         parse_word = analyzer.parse(word)[0]
         list_word_with_tag.append((word, parse_word.tag.POS))
     return list_word_with_tag
 
 
-def draw_tree():
-    """
-    Function for drawing a tree using a parser for grammar.
-    :return: drawing a tree
-    """
-    text = calculated_text.get(1.0, END)
+def get_tree(text):
     text = text.replace('\n', '')
     if text != '':
         doc = get_word_tag(text)
-        new_doc = []
-        for item in doc:
-            if item[0] != ',' and item[0] != '.':
-                new_doc.append(item)
-        cp = nltk.RegexpParser(grammar)
-        result = cp.parse(new_doc)
-        result.draw()
+        new_doc = [item for item in doc if item[0] not in ['.', ',']]
+        result = rp.parse(new_doc)
+        return result  # pformat
