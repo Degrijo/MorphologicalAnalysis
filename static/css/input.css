@@ -41,8 +41,14 @@ body {
 }
 
 .center-display {
-    justify-content: center;
     display: flex;
+    justify-content: center;
+}
+
+.menu-container {
+    display: flex;
+    justify-content: center;
+    align-items: center
 }
 
 .result {

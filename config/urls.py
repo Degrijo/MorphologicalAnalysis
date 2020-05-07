@@ -1,10 +1,11 @@
 from django.urls import path
 from django.contrib import admin
 
-from app.core.views import LexicalAnalysisView
+from app.core.views import MainMenu, LexicalAnalysisView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('analysis/', LexicalAnalysisView.as_view()),
+    path('', MainMenu.as_view()),
+    path('lab1/', LexicalAnalysisView.as_view()),
 ]
