@@ -7,13 +7,21 @@ from app.core.utils.lab3 import get_tree
 from app.core.utils.lab4 import semantic_parse
 
 
-class MainMenu(TemplateView):
-    template_name = 'menu.html'
+class SemesterChoice(TemplateView):
+    template_name = 'semester_menu.html'
+
+
+class FirstSemester(TemplateView):
+    template_name = 'semester_1.html'
+
+
+class SecondSemester(TemplateView):
+    template_name = 'semester_2.html'
 
 
 class LexicalAnalysisView(FormView):
     form_class = InputForm
-    template_name = 'lab1.html'
+    template_name = 'semester_1/lab1.html'
 
     def form_valid(self, form):
         new_text = process_text(form.cleaned_data['text'])
@@ -22,7 +30,7 @@ class LexicalAnalysisView(FormView):
 
 class SyntacticTreeView(FormView):
     form_class = InputForm
-    template_name = 'lab3.html'
+    template_name = 'semester_1/lab3.html'
 
     def form_valid(self, form):
         new_text = get_tree(form.cleaned_data['text'])
@@ -31,7 +39,7 @@ class SyntacticTreeView(FormView):
 
 class SemanticAnalysisView(FormView):
     form_class = InputForm
-    template_name = 'lab4.html'
+    template_name = 'semester_1/lab4.html'
 
     def form_valid(self, form):
         new_text = semantic_parse(form.cleaned_data['text'])
