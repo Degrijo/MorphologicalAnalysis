@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib import admin
 
 from app.core.views import SemesterChoice, FirstSemester, SecondSemester, LexicalAnalysisView, SyntacticTreeView, \
-    SemanticAnalysisView
+    SemanticAnalysisView, LogicalSearch
 
 
 urlpatterns = [
@@ -14,5 +14,5 @@ urlpatterns = [
     path('semester1/lab2/', LexicalAnalysisView.as_view(), name='lab2-1'),
     path('semester1/lab3/', SyntacticTreeView.as_view(), name='lab3-1'),
     path('semester1/lab4/', SemanticAnalysisView.as_view(), name='lab4-1'),
-    path('semester2/lab1/', SemanticAnalysisView.as_view(), name='lab1-2')
+    path('semester2/lab1/', LogicalSearch.as_view(), name='lab1-2')
 ]
