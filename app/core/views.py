@@ -52,5 +52,6 @@ class LogicalSearch(FormView):
     template_name = 'semester_2/lab1.html'
 
     def form_valid(self, form):
-        documents = get_closest_docs(form.cleaned_data['text'])
+        data = form.cleaned_data
+        documents = get_closest_docs(data['text'])
         return self.render_to_response(self.get_context_data(form=form, documents=documents))
