@@ -19,7 +19,7 @@ def get_languages(filepath):
            '\nMy case: ' + my_case(text)
 
 
-print(get_languages('../../datasets/test1.pdf'))
-print(get_languages('../../datasets/test2.pdf'))
-print(get_languages('../../datasets/test3.pdf'))
-print(get_languages('../../datasets/test4.pdf'))
+print(get_languages('../../datasets/lab2/test1.pdf'))
+print(get_languages('../../datasets/lab2/test2.pdf'))
+print(get_languages('../../datasets/lab2/test3.pdf'))
+print(get_languages('../../datasets/lab2/test4.pdf'))

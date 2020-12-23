@@ -4,24 +4,30 @@
     <div class="row m-5">
         <div class="col-sm-2"></div>
         <div class="col-sm-8">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row form-container mt-5">
-                    <div id="label-container" class="col-sm-2">Query:</div>
+                    <div id="label-container" class="col-sm-2">Input document:</div>
                     <div class="col-sm-10">
-                        <textarea name="text" cols="90" rows="5" maxlength="10000" required="" id="id_text">{{ form.text.value|default:"" }}</textarea>
+                        {{ form.file }}
                     </div>
                 </div>
-                    {% if documents %}
+                    {% if summarizing %}
                         <div class="row form-container">
-                            <div id="label-container" class="col-sm-2">Closest documents:</div>
+                            <div id="label-container" class="col-sm-2">Summarizing:</div>
                             <div class="col-sm-10">
-                                <div class="result_block">
-                                    {% for doc in documents %}
-                                        <div>
-                                            {{ forloop.counter }}. {{ doc.text }} ({{ doc.probability }})
-                                        </div>
-                                    {% endfor %}
+                                <div class="small_result_block">
+                                    {{ summarizing }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if key_words %}
+                        <div class="row form-container">
+                            <div id="label-container" class="col-sm-2">Key words:</div>
+                            <div class="col-sm-10">
+                                <div class="small_result_block">
+                                    <div>{{ key_words }}</div>
                                 </div>
                             </div>
                         </div>

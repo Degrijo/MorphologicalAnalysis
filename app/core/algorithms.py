@@ -1,3 +1,4 @@
+from math import log2
 from re import sub, split, search
 from string import punctuation
 
@@ -6,10 +7,12 @@ from nltk.stem import WordNetLemmatizer
 from nltk.probability import FreqDist
 from langdetect import detect
 from iso639 import languages
+from gensim.summarization import summarize, keywords
 
 
 CHAR_LIMIT = 3
 ABSENT_FREQUENCY = 0.1
+SUMMARIZE_LIMIT = 10
 FR_COMMON_WORDS = {'cette', 'ce', 'cet', 'сes ', 'ma', 'ta', 'sa', 'mon', 'ton', 'son',
                    'mes', 'tes', 'ses', 'notre', 'votre', 'leur', 'nos', 'vos', 'leurs',
                    'un', 'une', 'des', 'du', 'dela', 'le', 'la', 'les', 'au', 'aux',
@@ -21,23 +24,23 @@ COMMON_WORDS = {'France': FR_COMMON_WORDS, 'Germany': DE_COMMON_WORDS}
 lemmatizer = WordNetLemmatizer()
 
 
-def get_words_list(raw_string):
+def word_list(raw_string):
     return split(r'[\n ]', sub(f'[{punctuation}]', '', raw_string))
 
 
-def get_key_words_set(raw_string):
-    return {lemmatizer.lemmatize(token.lower()) for token in get_words_list(raw_string) if token}
+def key_word_list(raw_string):
+    tokens = []
+    for token in word_list(raw_string):
+        if token and token not in stopwords.words("english"):
+            tokens.append(lemmatizer.lemmatize(token.lower()))
+    return tokens
 
 
-def key_words_without_stopwords(raw_string):
-    return get_key_words_set(raw_string) - set(stopwords.words("english"))
-
-
-def extract_keys(text, char):
-    found = search(char + r'"[^"]*"', text)
+def extract_key_list(text, char):
+    found = search(char + r'"[^"]+"', text)
     if found:
-        return key_words_without_stopwords(found.group()[2:-1])
-    return set()
+        return key_word_list(found.group()[2:-1])
+    return []
 
 
 def my_case(text):
@@ -45,7 +48,7 @@ def my_case(text):
 
 
 def frequency_word_case(text):
-    lemmes = get_words_list(text)
+    lemmes = word_list(text)
     fdist = {}
     for lang, words in COMMON_WORDS.items():
         total_prob = 0
@@ -69,7 +72,7 @@ def short_lemme_probabilities(words):
 
 def short_word_case(text):
     lang_probs = {}
-    lemmes = get_words_list(text)
+    lemmes = word_list(text)
     for lang, lang_words in COMMON_WORDS.items():
         probs = short_lemme_probabilities(lang_words)
         total_prob = 1
@@ -77,3 +80,15 @@ def short_word_case(text):
             total_prob *= probs[lemme] or ABSENT_FREQUENCY
         lang_probs[lang] = total_prob
     return max(lang_probs.items(), key=lambda x: x[1])[0]
+
+
+def get_probs(tokens, doc_count):
+    return {word: log2(doc_count / prob) for word, prob in FreqDist(tokens).items()}
+
+
+def key_words(text):
+    return keywords(text, words=SUMMARIZE_LIMIT, split=True)
+
+
+def custom_summarize(text):
+    return ' '.join(summarize(text, split=True))
