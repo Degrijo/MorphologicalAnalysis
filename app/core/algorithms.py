@@ -1,6 +1,8 @@
+from json import loads
 from math import log2
 from re import sub, split, search
 from string import punctuation
+from os import listdir
 
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -8,6 +10,10 @@ from nltk.probability import FreqDist
 from langdetect import detect
 from iso639 import languages
 from gensim.summarization import summarize, keywords
+from requests import post
+from gtts import gTTS
+
+from decouple import config
 
 
 CHAR_LIMIT = 3
@@ -21,6 +27,9 @@ DE_COMMON_WORDS = {'für', 'durch', 'um', 'ohne', 'gegen', 'die', 'der', 'das', 
                    'bei', 'nach', 'seit', 'von', 'zu', 'beim', 'vom', 'zum', 'zur',
                    'ein', 'eine', 'und', 'bin', 'bist', 'ist', 'sind', 'ich', 'du', 'auf', 'dass'}
 COMMON_WORDS = {'France': FR_COMMON_WORDS, 'Germany': DE_COMMON_WORDS}
+YANDEX_API_URL = 'https://translate.yandex.net/api/v1.5/tr.json/translate?'
+PRIMARY_LANG = 'en'
+SECONDARY_LANG = 'ru'
 lemmatizer = WordNetLemmatizer()
 
 
@@ -92,3 +101,19 @@ def key_words(text):
 
 def custom_summarize(text):
     return ' '.join(summarize(text, split=True))
+
+
+def translate(text):
+    r = post(YANDEX_API_URL,
+             {'key': config('YANDEX_API_KEY'),
+              'text': text,
+              'lang': PRIMARY_LANG + '-' + SECONDARY_LANG})
+    return loads(r.text).get('text', [''])[0]
+
+
+def synthesize(text, language, dir_path):
+    speech = gTTS(text, lang=language)
+    number = len(listdir(dir_path))
+    file_path = str(number) + '.mp3'
+    speech.save(dir_path + file_path)
+    return file_path

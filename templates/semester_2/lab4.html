@@ -1,0 +1,35 @@
+{% extends 'new_base.html' %}
+
+{% block content %}
+    <div class="row m-5">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row form-container mt-5">
+                    <div id="label-container" class="col-sm-2">Query:</div>
+                    <div class="col-sm-10">
+                        <textarea name="text" cols="90" rows="5" maxlength="10000" required="" id="id_text">{{ form.text.value|default:"" }}</textarea>
+                    </div>
+                </div>
+                    {% if translated_text %}
+                        <div class="row form-container">
+                            <div id="label-container" class="col-sm-2">Translated:</div>
+                            <div class="col-sm-10">
+                                <div class="result_block">
+                                    {{ translated_text }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-10 center-display">
+                            <button class="submit-button" type="submit" value="Send message">Parse it!</button>
+                        </div>
+                    </div>
+            </form>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{% endblock %}

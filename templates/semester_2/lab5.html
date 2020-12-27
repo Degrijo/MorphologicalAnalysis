@@ -1,0 +1,46 @@
+{% extends 'new_base.html' %}
+
+{% block content %}
+{% load static %}
+    <div class="row m-5">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row form-container mt-5">
+                    <div id="label-container" class="col-sm-2">Query:</div>
+                    <div class="col-sm-10">
+                        <textarea name="text" cols="90" rows="5" maxlength="10000" required="" id="id_text">{{ form.text.value|default:"" }}</textarea>
+                    </div>
+                </div>
+                <div class="row form-container mt-5">
+                    <div id="label-container" class="col-sm-2">Language:</div>
+                    <div class="col-sm-10">
+                        <select name="lang" required="" id="id_lang">
+                            {% for x,y in form.fields.lang.choices %}
+                               <option value="{{ x }}"{% if form.fields.lang.value == x %} selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                    {% if synthesized_text_url %}
+                        <div class="row form-container mt-5">
+                            <div id="label-container" class="col-sm-2">Synthesized:</div>
+                            <div class="col-sm-10">
+                                <audio controls>
+                                    <source src="{% get_media_prefix %}/{{ synthesized_text_url }}" type="audio/mp3">
+                                </audio>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-10 center-display">
+                            <button class="submit-button" type="submit" value="Send message">Parse it!</button>
+                        </div>
+                    </div>
+            </form>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{% endblock %}

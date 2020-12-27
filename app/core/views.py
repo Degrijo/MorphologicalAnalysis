@@ -1,12 +1,13 @@
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
+from django.conf import settings
 
-from app.core.forms import InputForm, FileForm
+from app.core.forms import TextForm, FileForm, LangForm
 from app.core.utils.lab1 import process_text
 from app.core.utils.lab3 import get_tree
 from app.core.utils.lab4 import semantic_parse
 from app.core.django_utils import get_closest_docs
-from app.core.algorithms import custom_summarize, keywords
+from app.core.algorithms import custom_summarize, keywords, translate, synthesize
 
 
 class SemesterChoice(TemplateView):
@@ -22,7 +23,7 @@ class SecondSemester(TemplateView):
 
 
 class LexicalAnalysisView(FormView):
-    form_class = InputForm
+    form_class = TextForm
     template_name = 'semester_1/lab1.html'
 
     def form_valid(self, form):
@@ -31,7 +32,7 @@ class LexicalAnalysisView(FormView):
 
 
 class SyntacticTreeView(FormView):
-    form_class = InputForm
+    form_class = TextForm
     template_name = 'semester_1/lab3.html'
 
     def form_valid(self, form):
@@ -40,7 +41,7 @@ class SyntacticTreeView(FormView):
 
 
 class SemanticAnalysisView(FormView):
-    form_class = InputForm
+    form_class = TextForm
     template_name = 'semester_1/lab4.html'
 
     def form_valid(self, form):
@@ -49,7 +50,7 @@ class SemanticAnalysisView(FormView):
 
 
 class LogicalSearch(FormView):
-    form_class = InputForm
+    form_class = TextForm
     template_name = 'semester_2/lab1.html'
 
     def form_valid(self, form):
@@ -68,3 +69,23 @@ class TextSummarizer(FormView):
         return self.render_to_response(self.get_context_data(form=form,
                                                              summarizing=custom_summarize(text),
                                                              key_words=keywords(text)))
+
+
+class TextTranslator(FormView):
+    form_class = TextForm
+    template_name = 'semester_2/lab4.html'
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        translated_text = translate(data['text'])
+        return self.render_to_response(self.get_context_data(form=form, translated_text=translated_text))
+
+
+class TextSynthesizer(FormView):
+    form_class = LangForm
+    template_name = 'semester_2/lab5.html'
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        synthesized_text_url = synthesize(data['text'], data['lang'], settings.MEDIA_ROOT)
+        return self.render_to_response(self.get_context_data(form=form, synthesized_text_url=synthesized_text_url))
