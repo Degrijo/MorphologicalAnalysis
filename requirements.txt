@@ -27,7 +27,7 @@ preshed==3.0.2
 pycparser==2.20
 pymorphy2==0.8
 pymorphy2-dicts==2.4.393442.3710985
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 python-decouple==3.3
 pytz==2020.1
 regex==2020.4.4
